@@ -236,8 +236,7 @@ func filesProcessing() {
 func main() {
 	flag.Parse()
 	if *filePath == "" {
-		flag.Usage()
-		os.Exit(0)
+		startWebserver()
 	} else {
 		filesProcessing()
 	}
