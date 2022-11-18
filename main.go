@@ -120,7 +120,7 @@ func organizeMapObject(fieldNames []string, objName string, manifestObjFields in
 		}
 		delete(objMap, fieldName)
 	}
-	
+
 	return result
 }
 
@@ -143,7 +143,7 @@ func organizeFields(fieldNames []string, manifestObjName string, manifestObjFiel
 		result = append(result, mapItem)
 		return result
 	}
-	
+
 	return organizedFields
 }
 
@@ -152,12 +152,7 @@ type file struct {
 	dir  string
 }
 
-func main() {
-	flag.Parse()
-	if *filePath == "" {
-		flag.Usage()
-		os.Exit(0)
-	}
+func filesProcessing() {
 	fileInfo, err := os.Stat(*filePath)
 	if err != nil {
 		log.Fatalf("Cannot open path %s, cause err: %v", *filePath, err)
@@ -188,7 +183,6 @@ func main() {
 	}
 
 	for _, f := range files {
-		// fileName := "lcm-deployment.yaml"
 		stream, err := ioutil.ReadFile(filepath.Join(f.dir, f.name))
 		if err != nil {
 			log.Fatal(err)
@@ -224,5 +218,14 @@ func main() {
 			log.Fatal(err)
 		}
 	}
+}
 
+func main() {
+	flag.Parse()
+	if *filePath == "" {
+		flag.Usage()
+		os.Exit(0)
+	} else {
+		filesProcessing()
+	}
 }
