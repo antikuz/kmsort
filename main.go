@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/antikuz/kmsort/internal/models"
 	"gopkg.in/yaml.v2"
@@ -95,7 +96,15 @@ func organizeMapObject(fieldNames []string, objName string, manifestObjFields in
 		}
 	}
 
-	for fieldName, fieldObj := range objMap {
+	// organize all remaining fields in alphabetical order
+	fieldNames = []string{}
+    for fieldName := range objMap {
+        fieldNames = append(fieldNames, fieldName)
+    }
+    sort.Strings(fieldNames)
+
+	for _, fieldName := range fieldNames {
+		fieldObj := objMap[fieldName]
 		if _, ok := orderMap[fieldName]; ok {
 			switch fieldObj.(type) {
 			case []interface{}:
@@ -107,7 +116,6 @@ func organizeMapObject(fieldNames []string, objName string, manifestObjFields in
 				result = append(result, convertToMapItem(fieldName, organizedFields))
 			}
 		} else if value, ok := fieldObj.(map[interface{}]interface{}); ok {
-			// fmt.Printf("Key:%s, Value:%s (%T), Len:%d\n", fieldName, fieldValue, fieldValue, len(value))
 			if len(value) != 0 || fieldName == "emptyDir" {
 				subObjMap := convertToMapString(value)
 				organizedFields := organizeFields(orderMap[fieldName], fieldName, subObjMap)
