@@ -1,0 +1,36 @@
+<html>
+<head>
+   <script>
+      function renderManifest(){
+        const data = new URLSearchParams(new FormData(document.forms.myForm));
+        fetch("/render", {
+            method: 'post',
+            body: data,
+        })
+        .then(response=>response.text())
+        .then(data=>{ document.getElementById('sortedManifest').value = data; })
+      }
+</script>
+<style>
+  .box {
+    display: flex;
+  }
+</style>
+</head>
+<body>
+<div class="box">
+  <div>      
+    <form id="myForm">
+      <label for="manifest">Manifest</label><br>
+      <textarea id="manifest" name="manifest" rows="50" cols="100"></textarea>
+    </form>
+  </div>
+  <div>
+    <label for="sortedManifest">Result</label><br>
+    <textarea id="sortedManifest" name="sortedManifest" rows="50" cols="100"></textarea>
+  </div>
+</div>
+
+<button onclick="renderManifest()">Sort</button>
+</body>
+</html>
