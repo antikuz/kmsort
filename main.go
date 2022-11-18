@@ -152,6 +152,34 @@ type file struct {
 	dir  string
 }
 
+func sortManifest(manifestByte []byte) ([]byte, error) {
+	manifest := models.Manifest{}
+	err := yaml.Unmarshal(manifestByte, &manifest)
+	if err != nil {
+		return nil, err
+	}
+
+	manifestOrderedMap := yaml.MapSlice{
+		convertToMapItem("apiVersion", manifest.ApiVersion),
+		convertToMapItem("kind", manifest.Kind),
+		organizeMetadata(manifest.Metadata),
+	}
+
+	if manifest.Kind == "ConfigMap" || manifest.Kind == "Secret" {
+		manifestOrderedMap = append(manifestOrderedMap, convertToMapItem("data", manifest.Data))
+	} else {
+		manifestOrderedMap = append(manifestOrderedMap, organizeSpec(manifest))
+	}
+
+	manifestByte, err = yaml.Marshal(&manifestOrderedMap)
+	if err != nil {
+		return nil, err
+	}
+
+	return manifestByte, nil
+}
+
+
 func filesProcessing() {
 	fileInfo, err := os.Stat(*filePath)
 	if err != nil {
@@ -188,26 +216,11 @@ func filesProcessing() {
 			log.Fatal(err)
 		}
 
-		manifest := models.Manifest{}
-		err = yaml.Unmarshal(stream, &manifest)
+		manifestByte, err := sortManifest(stream)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		manifestOrderedMap := yaml.MapSlice{
-			convertToMapItem("apiVersion", manifest.ApiVersion),
-			convertToMapItem("kind", manifest.Kind),
-			organizeMetadata(manifest.Metadata),
-		}
-
-		if manifest.Kind == "ConfigMap" || manifest.Kind == "Secret" {
-			manifestOrderedMap = append(manifestOrderedMap, convertToMapItem("data", manifest.Data))
-		} else {
-			manifestOrderedMap = append(manifestOrderedMap, organizeSpec(manifest))
-		}
-
-		manifestByte, _ := yaml.Marshal(&manifestOrderedMap)
-
+		
 		err = os.MkdirAll(filepath.Join("new", f.dir), 0644)
 		if err != nil {
 			log.Fatal(err)
