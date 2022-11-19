@@ -2,7 +2,7 @@
 <head>
    <script>
       function renderManifest(){
-        const data = new URLSearchParams(new FormData(document.forms.myForm));
+        const data = new URLSearchParams(new FormData(document.forms.manifestForm));
         fetch("/render", {
             method: 'post',
             body: data,
@@ -10,27 +10,88 @@
         .then(response=>response.text())
         .then(data=>{ document.getElementById('sortedManifest').value = data; })
       }
-</script>
-<style>
-  .box {
-    display: flex;
-  }
-</style>
+  </script>
+  <script>
+    function saveTextAsFile() {
+      var textToWrite = document.getElementById('sortedManifest').value;
+      var textFileAsBlob = new Blob([ textToWrite ], { type: 'text/plain' });
+      var fileNameToSaveAs = "manifest.yaml";
+
+      var downloadLink = document.createElement("a");
+      downloadLink.download = fileNameToSaveAs;
+      downloadLink.innerHTML = "Download File";
+      if (window.webkitURL != null) {
+        // Chrome allows the link to be clicked without actually adding it to the DOM.
+        downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+      } else {
+        // Firefox requires the link to be added to the DOM before it can be clicked.
+        downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+        downloadLink.onclick = destroyClickedElement;
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+      }
+
+      downloadLink.click();
+    }
+  </script>
+  <style>
+    .button {
+      height:50;
+      width:200px;
+      background-color: #68b12f;
+      background: -webkit-gradient(linear, left top, left bottom, from(#68b12f), to(#50911e));
+      background: -webkit-linear-gradient(top, #68b12f, #50911e);
+      background: -moz-linear-gradient(top, #68b12f, #50911e);
+      background: -ms-linear-gradient(top, #68b12f, #50911e);
+      background: -o-linear-gradient(top, #68b12f, #50911e);
+      background: linear-gradient(top, #68b12f, #50911e);
+      border: 1px solid #509111;
+      font-size: 30px;
+      color: white;
+      text-align: center;
+    }
+    .button:hover {
+      opacity:.85;
+      cursor: pointer;
+    }
+    .button:active {
+      border: 1px solid #20911e;
+      box-shadow: 0 0 3px 3px #356b0b inset;
+    }
+    textarea {
+      height: 600px;
+      width:100%;
+      resize: none;
+    }
+    .box {
+      display: flex;
+    }
+    .column {
+      width:48%;
+      margin: 0px 10px 0px;
+    }
+  </style>
 </head>
 <body>
 <div class="box">
-  <div>      
-    <form id="myForm">
-      <label for="manifest">Manifest</label><br>
-      <textarea id="manifest" name="manifest" rows="50" cols="100"></textarea>
+  <div class="column">   
+    <form id="manifestForm">
+      <h2>Manifest</h2>
+      <textarea id="manifest" name="manifest"></textarea>
     </form>
   </div>
-  <div>
-    <label for="sortedManifest">Result</label><br>
-    <textarea id="sortedManifest" name="sortedManifest" rows="50" cols="100"></textarea>
+  <div class="column">  
+    <h2>Result</h2>
+    <textarea id="sortedManifest" name="sortedManifest"></textarea>
   </div>
 </div>
-
-<button onclick="renderManifest()">Sort</button>
+<div class="box">
+  <div class="column">   
+    <button class="button" onclick="renderManifest()">Sort</button>
+  </div>
+  <div class="column">  
+    <button class="button" onclick="saveTextAsFile()">Save</button>
+  </div>
+</div>
 </body>
 </html>
