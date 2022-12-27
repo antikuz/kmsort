@@ -171,7 +171,6 @@ func sortManifest(manifestByte []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	manifestOrderedMap := yaml.MapSlice{
 		convertToMapItem("apiVersion", manifest.ApiVersion),
 		convertToMapItem("kind", manifest.Kind),
@@ -179,7 +178,11 @@ func sortManifest(manifestByte []byte) ([]byte, error) {
 	}
 
 	if manifest.Kind == "ConfigMap" || manifest.Kind == "Secret" {
-		manifestOrderedMap = append(manifestOrderedMap, convertToMapItem("data", manifest.Data))
+		if manifest.Data != nil {
+			manifestOrderedMap = append(manifestOrderedMap, convertToMapItem("data", manifest.Data))
+		} else if manifest.StringData != nil  {
+			manifestOrderedMap = append(manifestOrderedMap, convertToMapItem("stringData", manifest.StringData))
+		}
 	} else {
 		manifestOrderedMap = append(manifestOrderedMap, organizeSpec(manifest))
 	}
