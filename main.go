@@ -27,9 +27,13 @@ func organizeListObjects(obj interface{}, fieldName string) interface{} {
 	}
 
 	for _, obj := range objList {
-		objMap := convertToMapString(obj.(map[interface{}]interface{}))
-		organizedFields := organizeFields(orderMap[fieldName], fieldName, objMap)
-		result = append(result, organizedFields)
+		if objMapInterface, ok := obj.(map[interface{}]interface{}); ok {
+			objMap := convertToMapString(objMapInterface)
+			organizedFields := organizeFields(orderMap[fieldName], fieldName, objMap)
+			result = append(result, organizedFields)
+		} else {
+			result = append(result, obj)
+		}
 	}
 
 	return result
