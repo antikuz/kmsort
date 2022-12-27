@@ -17,7 +17,7 @@ var orderMap = map[string][]string{
 	"Template":       {"nodeSelector", "image", "initContainers", "containers"},
 	"strategy":       {"type"},
 	"updateStrategy": {"type"},
-	"ports":          {"name", "port", "containerPort", "protocol"},
+	"ports":          {"name", "port", "targetPort", "containerPort", "protocol"},
 	"spec":           {"nodeSelector", "image", "initContainers", "containers"},
 }
 
