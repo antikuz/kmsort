@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"io/ioutil"
 	"log"
@@ -224,16 +225,23 @@ func filesProcessing() {
 			log.Fatal(err)
 		}
 
-		manifestByte, err := sortManifest(stream)
-		if err != nil {
-			log.Fatal(err)
+		manifestsByte := bytes.Split(stream, []byte("---"))
+		result := [][]byte{}
+		for _, manifestByte := range manifestsByte {
+			sortedManifest, err := sortManifest(manifestByte)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			result = append(result, sortedManifest)
 		}
-		
+
+		manifestByte := bytes.Join(result, []byte("---\n"))
 		err = os.MkdirAll(filepath.Join("new", f.dir), 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
-
+		
 		err = ioutil.WriteFile(filepath.Join("new", f.dir, f.name), manifestByte, 0666)
 		if err != nil {
 			log.Fatal(err)
